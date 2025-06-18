@@ -29,7 +29,7 @@ jobs:
 
     # Install the latest version of the Terraform CLI
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v4
       with:
         terraform_wrapper: false
 
@@ -77,7 +77,7 @@ jobs:
         echo '```' >> $GITHUB_OUTPUT
         echo "</details>" >> $GITHUB_OUTPUT
         echo "${delimiter}" >> $GITHUB_OUTPUT
-        
+
     # Publish Terraform Plan as task summary
     - name: Publish Terraform Plan to Task Summary
       env:
@@ -132,7 +132,7 @@ jobs:
                 body: body
              })
             }
-            
+
     # If changes aren't detected, close any open drift issues
     - name: Publish Drift Report
       if: steps.tf-plan.outputs.exitcode == 0
@@ -162,7 +162,7 @@ jobs:
                 state: 'closed'
               })
             } 
-             
+
     # Mark the workflow as failed if drift detected 
     - name: Error on Failure
       if: steps.tf-plan.outputs.exitcode == 2
