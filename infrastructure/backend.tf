@@ -6,4 +6,3 @@ terraform {
     key                  = "go-web-app.terraform.tfstate"
   }
 }
-
