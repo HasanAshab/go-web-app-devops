@@ -59,7 +59,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const title = "⚠️ Infrastructure Drift Detected";
-            const newBody = ${{ steps.drift_summary.outputs.body }};
+            const newBody = `${{ steps.drift_summary.outputs.body }}`;
 
             const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
