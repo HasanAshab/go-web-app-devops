@@ -3,22 +3,122 @@ name: Check for infrastructure drift
 on:
   workflow_dispatch:
   schedule:
-    - cron:  "0 8 * * *" # every morning
+    - cron: "0 8 * * *"  # every day at 8:00 UTC
+
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
 jobs:
   check_drift:
     runs-on: ubuntu-latest
-    name: Check for drift of example terraform configuration
+    name: Check for drift in Terraform configuration
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Check for drift
+        id: drift
         uses: dflook/terraform-check@v2
         with:
           path: infrastructure
+        continue-on-error: true
+
+      - name: Set drift summary
+        id: drift_summary
+        run: |
+          if [[ "${{ steps.drift.outcome }}" == "failure" ]]; then
+            echo "drift=true" >> $GITHUB_OUTPUT
+            echo "Drift detected. Preparing issue body..."
+
+            echo "body<<EOF" >> $GITHUB_OUTPUT
+            echo "⚠️ **Infrastructure Drift Detected** ⚠️" >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo '```' >> $GITHUB_OUTPUT
+            echo "${{ steps.drift.outputs.stdout }}" >> $GITHUB_OUTPUT
+            echo '```' >> $GITHUB_OUTPUT
+            echo "" >> $GITHUB_OUTPUT
+            echo "Run: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "drift=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update drift issue
+        if: steps.drift_summary.outputs.drift == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = "⚠️ Infrastructure Drift Detected";
+            const newBody = process.env.body;
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open"
+            });
+
+            let existingIssue = issues.find(issue => issue.title === title);
+
+            if (existingIssue) {
+              if (existingIssue.body !== newBody) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existingIssue.number,
+                  body: newBody
+                });
+                core.info("Updated existing drift issue.");
+              } else {
+                core.info("Existing issue matches current drift. No update needed.");
+              }
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: newBody
+              });
+              core.info("Created new drift issue.");
+            }
+
+      - name: Close resolved drift issue
+        if: steps.drift_summary.outputs.drift == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = "⚠️ Infrastructure Drift Detected";
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open"
+            });
+
+            const driftIssue = issues.find(issue => issue.title === title);
+            if (driftIssue) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: driftIssue.number,
+                state: "closed",
+                body: driftIssue.body + "\n\n✅ Drift resolved."
+              });
+              core.info("Closed resolved drift issue.");
+            }
+
+      - name: Fail workflow if drift found
+        if: steps.drift_summary.outputs.drift == 'true'
+        run: |
+          echo "Drift detected. Failing workflow."
+          exit 1
