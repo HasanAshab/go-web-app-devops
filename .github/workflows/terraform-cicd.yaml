@@ -41,8 +41,20 @@ jobs:
         with:
           path: infrastructure
 
-  plan:
+  test:
     needs: [lint, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Terraform Test
+        uses: dflook/terraform-test@v2
+        with:
+          path: infrastructure
+
+  plan:
+    if: github.event_name == 'pull_request'
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,9 +64,9 @@ jobs:
           path: infrastructure
 
   apply:
-    needs: plan
     environment: production
     if: github.event_name == 'push'
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,9 +77,9 @@ jobs:
           path: infrastructure
 
   destroy:
-    needs: apply
     environment: production
     if: github.event_name == 'push'
+    needs: apply
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
