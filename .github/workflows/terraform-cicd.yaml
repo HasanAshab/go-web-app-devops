@@ -30,6 +30,8 @@ jobs:
         uses: dflook/terraform-fmt-check@v2
         with:
           path: infrastructure
+          workspace: prod
+          var_file: prod.tfvars
 
   validate:
     runs-on: ubuntu-latest
@@ -40,6 +42,8 @@ jobs:
         uses: dflook/terraform-validate@v2
         with:
           path: infrastructure
+          workspace: prod
+          var_file: prod.tfvars
 
   test:
     needs: [lint, validate]
@@ -51,6 +55,8 @@ jobs:
         uses: dflook/terraform-test@v2
         with:
           path: infrastructure
+          workspace: prod
+          var_file: prod.tfvars
 
   plan:
     if: github.event_name == 'pull_request'
@@ -62,6 +68,8 @@ jobs:
       - uses: dflook/terraform-plan@v2
         with:
           path: infrastructure
+          workspace: prod
+          var_file: prod.tfvars
 
   apply:
     environment: production
@@ -75,6 +83,8 @@ jobs:
         uses: dflook/terraform-apply@v2
         with:
           path: infrastructure
+          workspace: prod
+          var_file: prod.tfvars
 
   destroy:
     environment: production
@@ -88,3 +98,5 @@ jobs:
         uses: dflook/terraform-destroy@v2
         with:
           path: infrastructure
+          workspace: prod
+          var_file: prod.tfvars
