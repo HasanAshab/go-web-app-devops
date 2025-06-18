@@ -52,6 +52,7 @@ jobs:
             echo "drift=false" >> $GITHUB_OUTPUT
           fi
 
+      
       - name: Create or update drift issue
         if: steps.drift_summary.outputs.drift == 'true'
         uses: actions/github-script@v7
@@ -67,7 +68,7 @@ jobs:
               state: "open"
             });
 
-            let existingIssue = issues.find(issue => issue.title === title);
+            const existingIssue = issues.find(issue => issue.title === title);
 
             if (existingIssue) {
               if (existingIssue.body !== newBody) {
@@ -77,9 +78,9 @@ jobs:
                   issue_number: existingIssue.number,
                   body: newBody
                 });
-                core.info("Updated existing drift issue.");
+                core.info("✅ Updated existing drift issue.");
               } else {
-                core.info("Existing issue matches current drift. No update needed.");
+                core.info("ℹ️ Drift issue already up-to-date.");
               }
             } else {
               await github.rest.issues.create({
@@ -88,8 +89,9 @@ jobs:
                 title: title,
                 body: newBody
               });
-              core.info("Created new drift issue.");
+              core.info("✅ Created new drift issue.");
             }
+
 
       - name: Close resolved drift issue
         if: steps.drift_summary.outputs.drift == 'false'
