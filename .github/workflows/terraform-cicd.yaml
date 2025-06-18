@@ -40,8 +40,20 @@ jobs:
         uses: dflook/terraform-validate@v2
         with:
           path: infrastructure
+  
+  test:
+    needs: [lint, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Terraform Test
+        uses: dflook/terraform-test@v2
+        with:
+          path: infrastructure
 
   plan:
+    if: github.event_name == 'pull_request'
     needs: [lint, validate]
     runs-on: ubuntu-latest
     steps:
