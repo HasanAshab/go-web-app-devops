@@ -94,5 +94,3 @@ This project is equipped with a robust DevSecOps CI/CD pipeline via GitHub Actio
 
 **Hasan Ashab** – DevOps Engineer
 🔗 [LinkedIn](https://www.linkedin.com/in/hasan-ashab)
-
-```
