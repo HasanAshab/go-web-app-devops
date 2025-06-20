@@ -1,10 +1,7 @@
 # Go Web Application – DevOps Edition
 
-[![CI pipeline](https://github.com/HasanAshab/go-web-app-devops/actions/workflows/ci.yaml/badge.svg?event=push)](https://github.com/HasanAshab/go-web-app-devops/actions/workflows/ci.yaml)
-[![Terraform CI-CD pipeline](https://github.com/HasanAshab/go-web-app-devops/actions/workflows/terraform-cicd.yaml/badge.svg)](https://github.com/HasanAshab/go-web-app-devops/actions/workflows/terraform-cicd.yaml)
-[![1]](https://github.com/HasanAshab/go-web-app-devops/pkgs/container/go-web-app-devops)
-
-[1]: https://ghcr-badge.egpl.dev/hasanashab/go-web-app-devops/size
+[![CI pipeline](https://github.com/HasanAshab/go-web-app-devops/actions/workflows/ci.yaml/badge.svg?event=push)](https://github.com/HasanAshab/go-web-app-devops/actions/workflows/ci.yaml)  
+[![Container Image Size](https://ghcr-badge.egpl.dev/hasanashab/go-web-app-devops/size)](https://github.com/HasanAshab/go-web-app-devops/pkgs/container/go-web-app-devops)
 
 This is a DevOps-enhanced deployment of a [basic Golang web application](https://github.com/iam-veeramalla/go-web-app), restructured and productionized with best practices for containerization, CI/CD, observability, and Kubernetes.
 
@@ -14,50 +11,55 @@ This is a DevOps-enhanced deployment of a [basic Golang web application](https:/
 
 * **Dockerized Build**: Multi-stage Dockerfile for efficient image creation.
 * **Local Development**: `docker-compose` support with live reload for rapid iteration.
-* **Kubernetes Deployment**: Complete manifest files for deployment on ***AWS EKS***.
-* **Helm Charts**: Configurable Kubernetes manifests.
-* **Ingress Management**: Ingress Controller (***NGINX***) for routing and external access.
-* **CI with GitHub Actions**: [See more](#️-cicd-pipeline).
-* **CD via Argo CD**: [See more](#️-cicd-pipeline).
-* **Monitoring & Observability**: Prometheus and Grafana stack deployed via Helm.
-
----
-
-## 📊 Monitoring (Prometheus & Grafana)
-
-The application is instrumented for metrics and integrated with Prometheus and Grafana:
-
-* **Prometheus** scrapes application metrics and Kubernetes cluster state.
-* **Grafana** provides rich dashboards for visualization.
-
-### Dashboards
-
-* **Application Metrics**: Response times, request rate, error rate
-* **Infrastructure**: Node health, pod resource usage, etc.
-
-To access Grafana:
-
-```bash
-kubectl port-forward svc/grafana 3000:80 -n monitoring
-```
-
-Then navigate to: **[http://localhost:3000](http://localhost:3000)**
-Default credentials: `admin / admin`
+* **Helm Charts**: Kubernetes deployment configuration under `charts/go-web-app`.
+* **CI with GitHub Actions**: Automated testing and container builds.
+* **Monitoring-Ready**: Application exposes Prometheus metrics.
+* **CD via Argo CD**: Managed from infrastructure repo using GitOps.
 
 ---
 
 ## 🧑‍💻 Local Development
 
-To spin up the application locally with Docker:
+To spin up the application locally:
 
 ```bash
 docker-compose up
-```
+````
 
 Once running, the server will be accessible at:
 **[http://localhost:8080/courses](http://localhost:8080/courses)**
 
-**Live reload** is enabled—code changes will be reflected instantly in the container.
+Live reload is enabled—code changes are automatically reflected.
+
+---
+
+## 📦 Helm Chart
+
+The Kubernetes deployment is managed via Helm.
+
+To install the chart locally:
+
+```bash
+helm install go-web-app ./charts/go-web-app
+```
+
+This chart is also used in the production setup managed by Argo CD.
+
+---
+
+## 📡 Infrastructure & Deployment
+
+Infrastructure provisioning (EKS, Argo CD, monitoring stack, etc.) is managed in a separate repository:
+
+> 🔗 **[go-web-app-infra](https://github.com/HasanAshab/go-web-app-infra)** – contains Terraform, Argo CD Application definitions, and Helm values used to deploy this app.
+
+Argo CD automatically deploys the Helm chart from this repository (`charts/go-web-app`) using GitOps.
+
+---
+
+## 📊 Monitoring (Prometheus & Grafana)
+
+The application is instrumented with Prometheus metrics. Dashboards and the monitoring stack are deployed from the infrastructure repository.
 
 ---
 
@@ -69,31 +71,21 @@ Once running, the server will be accessible at:
 
 ## ⚙️ CI/CD Pipeline
 
-This project is equipped with a robust DevSecOps CI/CD pipeline:
+This project is equipped with a robust DevSecOps CI/CD pipeline via GitHub Actions:
 
-* **Push Pipeline**:
+* **Push Pipeline**
   ![Push Pipeline](static/images/cicd/push.png)
-* **Pull Request Pipeline**:
+
+* **Pull Request Pipeline**
   ![Pull Request Pipeline](static/images/cicd/pr.png)
-
----
-
-## 🛠️ Prerequisites (for Prod Deployment)
-
-* AWS EKS Cluster
-* Argo CD configured and running
-* Helm 3+
-* NGINX Ingress Controller installed
-* Prometheus + Grafana installed (via Helm)
-* Docker and kubectl installed
 
 ---
 
 ## 📈 Future Improvements
 
 * Add integration tests to CI
-* Add alerting rules in Prometheus
-* Configure custom Grafana dashboards
+* Configure alerting rules in Prometheus
+* Create custom Grafana dashboards
 * Add OpenTelemetry for distributed tracing
 
 ---
@@ -101,8 +93,6 @@ This project is equipped with a robust DevSecOps CI/CD pipeline:
 ## 🙋‍♂️ About Me
 
 **Hasan Ashab** – DevOps Engineer
-LinkedIn: [@hasan-ashab](https://www.linkedin.com/in/hasan-ashab)
+🔗 [LinkedIn](https://www.linkedin.com/in/hasan-ashab)
 
----
-
-Let me know if you want to include any actual Prometheus scrape config or example dashboards too.
+```
