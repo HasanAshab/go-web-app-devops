@@ -19,8 +19,8 @@ This is a DevOps-enhanced deployment of a [basic Golang web application](https:/
 * **Kubernetes Deployment**: Complete manifest files for deployment on **_AWS EKS_**.
 * **Helm Charts**: Configurable Kubernetes manifests.
 * **Ingress Management**: Ingress Controller (**_NGINX_**) for routing and external access.
-* **CI with GitHub Actions**: [See more](#️cicd-pipeline).
-* **CD via Argo CD**: [See more](#️cicd-pipeline).
+* **CI with GitHub Actions**: [See more](#️-cicd-pipeline).
+* **CD via Argo CD**: [See more](#️-cicd-pipeline).
 
 ---
 
