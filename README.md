@@ -47,12 +47,12 @@ Once running, the server will be accessible at:
 
 ## ⚙️ CI/CD Pipeline
 
-This project is equipped with a robust CI/CD pipeline:
+This project is equipped with a robust DevSecOps CI/CD pipeline:
 
-- **CI (GitHub Actions)**:
-![CI Diagram](static/images/ci.png)
-- **CD (Argo CD)**:
-![CD Diagram](static/images/cd.png)
+- **Push Pipeline**:
+![Push Pipeline](static/images/cicd/push.png)
+- **Pull Request Pipeline**:
+![Pull Request Pipeline](static/images/cicd/pr.png)
 
 ---
 
